@@ -69,6 +69,20 @@ class TestExtension:
         docs.register_existing_resources()
         assert '/bands/{band_id}/' in docs.spec._paths
 
+    def test_register_existing_nested_blueprints(self, app, docs):
+        blueprint_parent = Blueprint('main', __name__, url_prefix='/main')
+        blueprint_nested = Blueprint('child', __name__, url_prefix='/child')
+        blueprint_parent.register_blueprint(blueprint_nested)
+
+        @blueprint_nested.route('/bands/<int:band_id>/')
+        @doc(tags=['band'])
+        def get_band(band_id):
+            return 'queen'
+
+        app.register_blueprint(blueprint_parent)
+        docs.register_existing_resources()
+        assert '/main/child/bands/{band_id}/' in docs.spec._paths
+
     def test_serve_swagger(self, app, docs, client):
         res = client.get('/swagger/')
         assert res.json == docs.spec.to_dict()

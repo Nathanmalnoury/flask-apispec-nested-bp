@@ -98,7 +98,8 @@ class FlaskApiSpec:
     def register_existing_resources(self):
         for name, rule in self.app.view_functions.items():
             try:
-                blueprint_name, _ = name.split('.')
+                *blueprint_names, _ = name.split('.')
+                blueprint_name = '.'.join(blueprint_names)
             except ValueError:
                 blueprint_name = None
 
